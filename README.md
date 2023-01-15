@@ -5,7 +5,6 @@
 ```
 .
 ├── database                     // database migration/seeders
-├── docker                       // Local docker configuration
 ├── src                          // Application
 │   ├── [domain]                 // Module for specific domain
 │   │   ├── commands             // CLI commands
