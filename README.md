@@ -35,8 +35,6 @@
 ├── .env.example                 // Environment template file
 ├── .eslintrc.js                 // ESLint(https://eslint.org/) configuration file
 ├── .prettierrc                  // Prettier(https://prettier.io/) configuration file
-├── docker-compose.yml           // Docker Compose configuration file
-├── Dockerfile                   // Docker image configration file
 ├── mikro-orm.config.ts          // ORM configuration
 ├── package.json                 // Node dependency manager and runnable script command location
 ├── tsconfig.json                // TypeScript configuration
