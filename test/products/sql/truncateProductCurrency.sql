@@ -1,1 +1,0 @@
-TRUNCATE TABLE product_currency CASCADE;

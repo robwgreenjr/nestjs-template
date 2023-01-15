@@ -12,8 +12,8 @@ import {
     USER_DELETED_EVENT,
     USER_UPDATED_EVENT,
 } from "../events/UserEvents";
-import { QueryResponse } from "../../hypermedia/models/QueryResponse";
 import { QueryModel } from "../../global/models/QueryModel";
+import { QueryResponse } from "../../global/models/QueryResponse";
 
 export const SIMPLE_USER = "SIMPLE_USER";
 

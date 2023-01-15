@@ -1,6 +1,6 @@
-import { QueryResponse } from "./QueryResponse";
 import { HypermediaLinkList } from "../types/HypermediaLinkList";
-import { ErrorResponse } from "../types/ErrorResponse";
+import {QueryResponse} from "../../global/models/QueryResponse";
+import {ErrorResponse} from "../../global/types/ErrorResponse";
 
 export class HypermediaResponse extends QueryResponse {
     links: HypermediaLinkList;
@@ -11,8 +11,7 @@ export class HypermediaResponse extends QueryResponse {
         this.links = {
             self: {
                 href: "",
-                rel: "",
-                type: "",
+                method: "",
             },
         };
         this.errors = [];

@@ -4,7 +4,6 @@ import * as path from "path";
 import { TestDatabase } from "../../enums/TestDatabase";
 import {
     buildDatabase,
-    entities,
     mikroOrmConfig,
 } from "../../helpers/DatabaseConfigurations";
 import { runSqlScript } from "../../helpers/DatabaseHelper";
@@ -60,7 +59,6 @@ describe("RoleController (e2e)", () => {
                     user: TestDatabase.USER as string,
                     password: TestDatabase.PASSWORD as string,
                     name: databaseName,
-                    entities,
                 }),
                 AutomapperModule.forRoot({
                     strategyInitializer: mikro(),
@@ -111,6 +109,22 @@ describe("RoleController (e2e)", () => {
                 })
                 .then((result) => {
                     expect(JSON.parse(result.body).data.length).toBe(5);
+                });
+        });
+
+        it("when filter on permission should return correct role", async () => {
+            await runSqlScript(
+                databaseConnection,
+                path.join(__dirname, "..", "sql/createRole.sql"),
+            );
+
+            return app
+                .inject({
+                    method: "GET",
+                    url: "/authorization/roles?permissions.name=dname4",
+                })
+                .then((result) => {
+                    expect(JSON.parse(result.body).data.length).toBe(1);
                 });
         });
 

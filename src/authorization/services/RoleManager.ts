@@ -7,7 +7,7 @@ import { ROLE_REPOSITORY } from "../repositories/RolesRepository";
 import { IRolesRepository } from "../repositories/IRolesRepository";
 import { Role } from "../entities/Role";
 import { QueryModel } from "../../global/models/QueryModel";
-import { QueryResponse } from "../../hypermedia/models/QueryResponse";
+import { QueryResponse } from "../../global/models/QueryResponse";
 
 export const ROLE_MANAGER = "ROLE_MANAGER";
 

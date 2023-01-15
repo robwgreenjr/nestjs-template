@@ -7,7 +7,7 @@ import { IPermissionsRepository } from "../repositories/IPermissionsRepository";
 import { PermissionModel } from "../models/PermissionModel";
 import { Permission } from "../entities/Permission";
 import { QueryModel } from "../../global/models/QueryModel";
-import { QueryResponse } from "../../hypermedia/models/QueryResponse";
+import { QueryResponse } from "../../global/models/QueryResponse";
 
 export const PERMISSION_MANAGER = "PERMISSION_MANAGER";
 

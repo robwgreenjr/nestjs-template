@@ -4,7 +4,6 @@ import { HypermediaResponse } from "../models/HypermediaResponse";
 import { HypermediaLink } from "../types/HypermediaLink";
 import { HypermediaOptions } from "../types/HypermediaOptions";
 import { GlobalRequest } from "../../global/interfaces/GlobalRequest";
-import { HypermediaActionLink } from "../types/HypermediaActionLink";
 
 export const HYPERMEDIA_PROCESSOR = "HYPERMEDIA_PROCESSOR";
 
@@ -42,8 +41,7 @@ export class HypermediaProcessor implements IHypermediaProcessor {
 
         return {
             href: finalUrl,
-            rel: response.links.self.rel,
-            type: response.links.self.type,
+            method: response.links.self.method,
         };
     }
 
@@ -52,19 +50,7 @@ export class HypermediaProcessor implements IHypermediaProcessor {
         response.links.self.href = `${
             (options.request.raw as unknown as GlobalRequest).backendUrl
         }${options.request.url.split("?")[0]}`;
-        response.links.self.rel = options.relationship;
-        response.links.self.type = options.request.method;
-
-        if (options.request.hypermediaState?.links.length > 0) {
-            options.request.hypermediaState.links.map(
-                (link: HypermediaActionLink) => {
-                    if (link.key === "data") return;
-
-                    // @ts-ignore
-                    response.links[link.key] = link.link;
-                },
-            );
-        }
+        response.links.self.method = options.request.method;
 
         // Create next link when dealing with find all queries
         if (

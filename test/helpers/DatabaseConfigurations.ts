@@ -2,35 +2,9 @@ import { MikroORM } from "@mikro-orm/core";
 import "dotenv/config";
 import { Pool } from "pg";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
-import { User } from "../../src/users/entities/User";
-import { Permission } from "../../src/authorization/entities/Permission";
-import { Role } from "../../src/authorization/entities/Role";
-import { ResetPasswordToken } from "../../src/authentication/entities/ResetPasswordToken";
-import { UserPassword } from "../../src/authentication/entities/UserPassword";
-import { ApiKey } from "../../src/authentication/entities/ApiKey";
 import { DatabaseOptions } from "../../src/database/types/DatabaseOptions";
-import { Configuration } from "../../src/global/entities/Configuration";
 import { TestDatabase } from "../enums/TestDatabase";
-import { Product } from "../../src/products/entities/Product";
-import { ProductVariant } from "../../src/products/entities/ProductVariant";
-import { ProductCurrency } from "../../src/products/entities/ProductCurrency";
-import { ProductPromotion } from "../../src/products/entities/ProductPromotion";
-import { ProductVariantCurrency } from "../../src/products/entities/ProductVariantCurrency";
-
-export const entities = [
-    User,
-    Permission,
-    Role,
-    ResetPasswordToken,
-    UserPassword,
-    Configuration,
-    ApiKey,
-    Product,
-    ProductVariant,
-    ProductCurrency,
-    ProductPromotion,
-    ProductVariantCurrency,
-];
+import { entities } from "../../src/AppImports";
 
 export const mikroOrmConfig = (databaseOptions: DatabaseOptions) => {
     return [
@@ -53,7 +27,7 @@ export const mikroOrmConfig = (databaseOptions: DatabaseOptions) => {
                 glob: "!(*.d).{js,ts}",
                 emit: "ts",
             },
-            entities: databaseOptions.entities,
+            entities,
             allowGlobalContext: true,
         }),
     ];

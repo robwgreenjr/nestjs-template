@@ -17,7 +17,7 @@ import { CamelCaseNamingConvention } from "@automapper/core";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 import { AuthorizationGuard } from "../../../src/authorization/guards/AuthorizationGuard";
 import { HypermediaExceptionFilter } from "../../../src/hypermedia/filters/HypermediaExceptionFilter";
-import { entities, mikroOrmConfig } from "../../helpers/DatabaseConfigurations";
+import { mikroOrmConfig } from "../../helpers/DatabaseConfigurations";
 import { TestDatabase } from "../../enums/TestDatabase";
 import { DatabaseModule } from "../../../src/database/DatabaseModule";
 import { GlobalModule } from "../../../src/global/GlobalModule";
@@ -52,7 +52,6 @@ describe("HypermediaController (e2e)", () => {
                     user: TestDatabase.USER as string,
                     password: TestDatabase.PASSWORD as string,
                     name: databaseName,
-                    entities,
                 }),
                 AutomapperModule.forRoot({
                     strategyInitializer: mikro(),

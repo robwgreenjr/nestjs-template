@@ -1,8 +1,8 @@
 import { HypermediaLink } from "./HypermediaLink";
-import { HypermediaDataLink } from "./HypermediaDataLink";
+import {HypermediaActionLink} from "./HypermediaActionLink";
 
 export type HypermediaLinkList = {
     self: HypermediaLink;
     next?: HypermediaLink;
-    data?: HypermediaDataLink[];
+    actions?: HypermediaActionLink[];
 }

@@ -12,7 +12,6 @@ import { CamelCaseNamingConvention } from "@automapper/core";
 import { HypermediaExceptionFilter } from "../../../src/hypermedia/filters/HypermediaExceptionFilter";
 import {
     buildDatabase,
-    entities,
     mikroOrmConfig,
 } from "../../helpers/DatabaseConfigurations";
 import { runSqlScript } from "../../helpers/DatabaseHelper";
@@ -69,7 +68,6 @@ describe("JwtController (e2e)", () => {
                     user: TestDatabase.USER as string,
                     password: TestDatabase.PASSWORD as string,
                     name: databaseName,
-                    entities,
                 }),
                 AutomapperModule.forRoot({
                     strategyInitializer: mikro(),

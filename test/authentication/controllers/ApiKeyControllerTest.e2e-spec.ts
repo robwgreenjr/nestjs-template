@@ -11,7 +11,6 @@ import {
 import * as path from "path";
 import {
     buildDatabase,
-    entities,
     mikroOrmConfig,
 } from "../../helpers/DatabaseConfigurations";
 import { runSqlScript } from "../../helpers/DatabaseHelper";
@@ -61,7 +60,6 @@ describe("ApiKeyController (e2e)", () => {
                     user: TestDatabase.USER as string,
                     password: TestDatabase.PASSWORD as string,
                     name: databaseName,
-                    entities,
                 }),
                 AutomapperModule.forRoot({
                     strategyInitializer: mikro(),

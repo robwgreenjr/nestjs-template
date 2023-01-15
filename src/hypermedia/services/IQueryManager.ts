@@ -1,6 +1,6 @@
 import { QueryModel } from "../../global/models/QueryModel";
 import "module-alias/register";
-import { QueryResponse } from "../models/QueryResponse";
+import {QueryResponse} from "../../global/models/QueryResponse";
 
 export interface IQueryManager<T> {
     create(model: T): Promise<T>;

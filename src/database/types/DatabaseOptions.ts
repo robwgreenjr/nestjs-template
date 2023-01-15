@@ -4,5 +4,4 @@ export type DatabaseOptions = {
     user: string;
     password: string;
     name: string;
-    entities?: any;
 };

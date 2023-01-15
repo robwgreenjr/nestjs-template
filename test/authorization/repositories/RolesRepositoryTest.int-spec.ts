@@ -13,7 +13,6 @@ import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { TestDatabase } from "../../enums/TestDatabase";
 import {
     buildDatabase,
-    entities,
     mikroOrmConfig,
 } from "../../helpers/DatabaseConfigurations";
 import { runSqlScript } from "../../helpers/DatabaseHelper";
@@ -66,7 +65,6 @@ describe("RolesRepository (int)", () => {
                     user: TestDatabase.USER as string,
                     password: TestDatabase.PASSWORD as string,
                     name: databaseName,
-                    entities,
                 }),
                 AutomapperModule.forRoot({
                     strategyInitializer: mikro(),

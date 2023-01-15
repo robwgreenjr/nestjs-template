@@ -28,6 +28,21 @@ export class QueryBuilder implements IQueryBuilder {
         return sorted;
     }
 
+    private static buildNestedFilter(
+        filterProperty: string,
+        filterValue: object,
+    ): any {
+        let filterProperties = filterProperty.split(".");
+        filterProperties = filterProperties.reverse();
+
+        return filterProperties.reduce((prev, current) => {
+            if (!Object.keys({ ...prev }).length) {
+                return { [current]: filterValue };
+            }
+            return { [current]: { ...prev } };
+        }, {});
+    }
+
     public conditionBuilder(queryModel: QueryModel): QBFilterQuery {
         if (
             typeof queryModel.filterList === "undefined" ||
@@ -63,12 +78,11 @@ export class QueryBuilder implements IQueryBuilder {
                     filter.value = `%${filter.value}%`;
                 }
 
-                conditions[`$${filter.conjunctive}`].unshift({
-                    // @ts-ignore
-                    [filter.property]: {
+                conditions[`$${filter.conjunctive}`].unshift(
+                    QueryBuilder.buildNestedFilter(filter.property ?? "", {
                         [`$${filter.filter}`]: [filter.value],
-                    },
-                });
+                    }),
+                );
             }
 
             if (columnFilter.conjunctive === QueryConjunctive.AND) {

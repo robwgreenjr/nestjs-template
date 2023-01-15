@@ -19,7 +19,6 @@ import { CamelCaseNamingConvention } from "@automapper/core";
 import { TestDatabase } from "../../enums/TestDatabase";
 import {
     buildDatabase,
-    entities,
     mikroOrmConfig,
 } from "../../helpers/DatabaseConfigurations";
 import { runSqlScript } from "../../helpers/DatabaseHelper";
@@ -88,7 +87,6 @@ describe("AuthorizationE2E (e2e)", () => {
                     user: TestDatabase.USER as string,
                     password: TestDatabase.PASSWORD as string,
                     name: databaseName,
-                    entities,
                 }),
                 AutomapperModule.forRoot({
                     strategyInitializer: mikro(),

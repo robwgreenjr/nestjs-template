@@ -14,7 +14,7 @@ import { IStringEncoder } from "../../global/services/IStringEncoder";
 import { ApiKeyModel } from "../models/ApiKeyModel";
 import { ApiKey } from "../entities/ApiKey";
 import { QueryModel } from "../../global/models/QueryModel";
-import { QueryResponse } from "../../hypermedia/models/QueryResponse";
+import { QueryResponse } from "../../global/models/QueryResponse";
 
 export const API_KEY_MANAGER = "API_KEY_MANAGER";
 
