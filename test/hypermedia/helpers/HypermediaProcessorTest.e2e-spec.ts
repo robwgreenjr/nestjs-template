@@ -8,9 +8,6 @@ import {
 import { EntityManager } from "@mikro-orm/postgresql";
 import { ConfigService } from "@nestjs/config";
 import { EventEmitter2, EventEmitterModule } from "@nestjs/event-emitter";
-import { AutomapperModule } from "@automapper/nestjs";
-import { mikro } from "@automapper/mikro";
-import { CamelCaseNamingConvention } from "@automapper/core";
 import { TestDatabase } from "../../enums/TestDatabase";
 import {
     buildDatabase,
@@ -83,10 +80,6 @@ describe("HypermediaProcessor (e2e)", () => {
                     user: TestDatabase.USER as string,
                     password: TestDatabase.PASSWORD as string,
                     name: databaseName,
-                }),
-                AutomapperModule.forRoot({
-                    strategyInitializer: mikro(),
-                    namingConventions: new CamelCaseNamingConvention(),
                 }),
                 EventEmitterModule.forRoot(),
                 DatabaseModule,

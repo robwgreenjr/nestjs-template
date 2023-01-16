@@ -1,13 +1,11 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { InjectMapper } from "@automapper/nestjs";
-import { Mapper } from "@automapper/core";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { IUserPasswordManager } from "./IUserPasswordManager";
 import { UserPasswordModel } from "../models/UserPasswordModel";
 import { USER_PASSWORD_REPOSITORY } from "../repositories/UserPasswordRepository";
 import { IUserPasswordRepository } from "../repositories/IUserPasswordRepository";
-import { UserPassword } from "../entities/UserPassword";
 import { BCRYPT_ENCODER } from "../../global/services/BCryptEncoder";
 import { IStringEncoder } from "../../global/services/IStringEncoder";
+import { UserPasswordMapper } from "../mappers/UserPasswordMapper";
 
 export const USER_PASSWORD_MANAGER = "USER_PASSWORD_MANAGER";
 
@@ -16,8 +14,6 @@ export class UserPasswordManager implements IUserPasswordManager {
     constructor(
         @Inject(USER_PASSWORD_REPOSITORY)
         private readonly userPasswordRepository: IUserPasswordRepository,
-        @InjectMapper()
-        private readonly mapper: Mapper,
         @Inject(BCRYPT_ENCODER)
         private readonly bCryptEncoder: IStringEncoder,
     ) {}
@@ -25,11 +21,7 @@ export class UserPasswordManager implements IUserPasswordManager {
     async create(
         userPasswordModel: UserPasswordModel,
     ): Promise<UserPasswordModel> {
-        let userPassword = this.mapper.map(
-            userPasswordModel,
-            UserPasswordModel,
-            UserPassword,
-        );
+        let userPassword = UserPasswordMapper.toEntity(userPasswordModel);
 
         if (userPassword.password) {
             userPassword.password = await this.bCryptEncoder.encode(
@@ -39,7 +31,7 @@ export class UserPasswordManager implements IUserPasswordManager {
 
         userPassword = await this.userPasswordRepository.create(userPassword);
 
-        return this.mapper.map(userPassword, UserPassword, UserPasswordModel);
+        return UserPasswordMapper.entityToModel(userPassword);
     }
 
     async delete(id: number): Promise<void> {
@@ -51,17 +43,17 @@ export class UserPasswordManager implements IUserPasswordManager {
             email,
         );
 
-        return this.mapper.map(userPassword, UserPassword, UserPasswordModel);
+        if (!userPassword) {
+            throw new NotFoundException("User password wasn't found.");
+        }
+
+        return UserPasswordMapper.entityToModel(userPassword);
     }
 
     async update(
         userPasswordModel: UserPasswordModel,
     ): Promise<UserPasswordModel> {
-        let userPassword = this.mapper.map(
-            userPasswordModel,
-            UserPasswordModel,
-            UserPassword,
-        );
+        let userPassword = UserPasswordMapper.toEntity(userPasswordModel);
 
         if (userPassword.password) {
             userPassword.password = await this.bCryptEncoder.encode(
@@ -71,6 +63,6 @@ export class UserPasswordManager implements IUserPasswordManager {
 
         userPassword = await this.userPasswordRepository.update(userPassword);
 
-        return this.mapper.map(userPassword, UserPassword, UserPasswordModel);
+        return UserPasswordMapper.entityToModel(userPassword);
     }
 }

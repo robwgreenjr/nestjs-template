@@ -1,33 +1,29 @@
 import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
-import { AutoMap } from "@automapper/classes";
 
-@Entity({tableName: "user_simple"})
+@Entity({ tableName: "user_simple" })
 export class User {
     @PrimaryKey()
-    @AutoMap()
     id?: number;
 
     @Property()
-    @AutoMap()
     firstName?: string;
 
-    @Property({nullable: true})
-    @AutoMap()
-    lastName?: string;
+    @Property({ nullable: true })
+    lastName?: string | null;
 
     @Property()
-    @AutoMap()
     email?: string;
 
-    @Property({nullable: true})
-    @AutoMap()
-    phone?: string;
+    @Property({ nullable: true })
+    phone?: string | null;
 
-    @Property({nullable: true})
-    @AutoMap()
+    @Property({ nullable: true })
     createdOn?: Date;
 
-    @Property({onUpdate: () => new Date(), onCreate: () => null, nullable: true})
-    @AutoMap()
+    @Property({
+        onUpdate: () => new Date(),
+        onCreate: () => null,
+        nullable: true,
+    })
     updatedOn?: Date = new Date();
 }

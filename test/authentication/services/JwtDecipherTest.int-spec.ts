@@ -5,9 +5,6 @@ import {
     FastifyAdapter,
     NestFastifyApplication,
 } from "@nestjs/platform-fastify";
-import { AutomapperModule } from "@automapper/nestjs";
-import { mikro } from "@automapper/mikro";
-import { CamelCaseNamingConvention } from "@automapper/core";
 import { EventEmitter2, EventEmitterModule } from "@nestjs/event-emitter";
 import { TestDatabase } from "../../enums/TestDatabase";
 import {
@@ -72,10 +69,6 @@ describe("JwtDecipher (int)", () => {
                     user: TestDatabase.USER as string,
                     password: TestDatabase.PASSWORD as string,
                     name: databaseName,
-                }),
-                AutomapperModule.forRoot({
-                    strategyInitializer: mikro(),
-                    namingConventions: new CamelCaseNamingConvention(),
                 }),
                 EventEmitterModule.forRoot(),
                 JwtModule,

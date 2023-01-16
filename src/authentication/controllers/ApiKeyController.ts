@@ -9,8 +9,6 @@ import {
     Put,
     Req,
 } from "@nestjs/common";
-import { InjectMapper } from "@automapper/nestjs";
-import { Mapper } from "@automapper/core";
 import { HypermediaController } from "../../hypermedia/controllers/HypermediaController";
 import { HTTP_HEADER_PARSER } from "../utilities/HttpHeaderParser";
 import { PARAMETER_PROCESSOR } from "../../global/utilities/ParameterProcessor";
@@ -20,15 +18,13 @@ import { IHttpHeaderParser } from "../utilities/IHttpHeaderParser";
 import { IParameterProcessor } from "../../global/utilities/IParameterProcessor";
 import { GlobalRequest } from "../../global/interfaces/GlobalRequest";
 import { ApiKeyDto } from "../dtos/ApiKeyDto";
-import { ApiKeyModel } from "../models/ApiKeyModel";
+import { ApiKeyMapper } from "../mappers/ApiKeyMapper";
 
 @Controller("authentication")
 export class ApiKeyController extends HypermediaController {
     constructor(
         @Inject(API_KEY_MANAGER)
         private readonly apiKeyManager: IApiKeyManager,
-        @InjectMapper()
-        private readonly mapper: Mapper,
         @Inject(HTTP_HEADER_PARSER)
         private readonly httpHeaderParser: IHttpHeaderParser,
         @Inject(PARAMETER_PROCESSOR)
@@ -39,7 +35,7 @@ export class ApiKeyController extends HypermediaController {
 
     @Post("api-key")
     async create(@Req() request: GlobalRequest, @Body() apiKeyDto: ApiKeyDto) {
-        const apiKeyModel = this.mapper.map(apiKeyDto, ApiKeyDto, ApiKeyModel);
+        const apiKeyModel = ApiKeyMapper.dtoToModel(apiKeyDto);
 
         return await this.apiKeyManager.create(apiKeyModel);
     }
@@ -51,7 +47,9 @@ export class ApiKeyController extends HypermediaController {
         );
 
         const result = await this.apiKeyManager.findAll(queryModel);
-        result.data = this.mapper.mapArray(result.data, ApiKeyModel, ApiKeyDto);
+        result.data = result.data.map((apiKeyModel) => {
+            return ApiKeyMapper.toDto(apiKeyModel);
+        });
 
         return result;
     }
@@ -64,7 +62,9 @@ export class ApiKeyController extends HypermediaController {
         queryModel.setPrimaryId(id);
 
         const result = await this.apiKeyManager.find(queryModel);
-        result.data = this.mapper.mapArray(result.data, ApiKeyModel, ApiKeyDto);
+        result.data = result.data.map((apiKeyModel) => {
+            return ApiKeyMapper.toDto(apiKeyModel);
+        });
 
         return result;
     }
@@ -80,7 +80,7 @@ export class ApiKeyController extends HypermediaController {
         @Param("id") id: number,
         @Body() apiKeyDto: ApiKeyDto,
     ) {
-        const apiKeyModel = this.mapper.map(apiKeyDto, ApiKeyDto, ApiKeyModel);
+        const apiKeyModel = ApiKeyMapper.dtoToModel(apiKeyDto);
 
         return await this.apiKeyManager.update(+id, apiKeyModel);
     }

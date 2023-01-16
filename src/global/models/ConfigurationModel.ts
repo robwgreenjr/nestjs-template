@@ -1,12 +1,5 @@
-import { AutoMap } from "@automapper/classes";
-
 export class ConfigurationModel {
-    @AutoMap()
-    key?: number;
-
-    @AutoMap()
+    key?: string;
     value?: string;
-
-    @AutoMap()
     hashed?: boolean;
 }

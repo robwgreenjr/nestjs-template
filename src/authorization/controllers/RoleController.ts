@@ -9,9 +9,6 @@ import {
     Put,
     Req,
 } from "@nestjs/common";
-import { InjectMapper } from "@automapper/nestjs";
-import { Mapper } from "@automapper/core";
-import { RoleModel } from "../models/RoleModel";
 import { RoleDto } from "../dtos/RoleDto";
 import { HypermediaController } from "../../hypermedia/controllers/HypermediaController";
 import { ROLE_MANAGER } from "../services/RoleManager";
@@ -19,14 +16,13 @@ import { IRoleManager } from "../services/IRoleManager";
 import { PARAMETER_PROCESSOR } from "../../global/utilities/ParameterProcessor";
 import { IParameterProcessor } from "../../global/utilities/IParameterProcessor";
 import { GlobalRequest } from "../../global/interfaces/GlobalRequest";
+import { RoleMapper } from "../mappers/RoleMapper";
 
 @Controller("authorization")
 export class RoleController extends HypermediaController {
     constructor(
         @Inject(ROLE_MANAGER)
         private readonly roleManager: IRoleManager,
-        @InjectMapper()
-        private readonly mapper: Mapper,
         @Inject(PARAMETER_PROCESSOR)
         private readonly parameterProcessor: IParameterProcessor,
     ) {
@@ -35,7 +31,7 @@ export class RoleController extends HypermediaController {
 
     @Post("role")
     async create(@Req() request: GlobalRequest, @Body() roleDto: RoleDto) {
-        const roleModel = this.mapper.map(roleDto, RoleDto, RoleModel);
+        const roleModel = RoleMapper.dtoToModel(roleDto);
 
         return await this.roleManager.create(roleModel);
     }
@@ -45,11 +41,9 @@ export class RoleController extends HypermediaController {
         @Req() request: GlobalRequest,
         @Body() roleDtoList: RoleDto[],
     ) {
-        const roleModelList = this.mapper.mapArray(
-            roleDtoList,
-            RoleDto,
-            RoleModel,
-        );
+        const roleModelList = roleDtoList.map((roleDto) => {
+            return RoleMapper.dtoToModel(roleDto);
+        });
 
         return await this.roleManager.createAll(roleModelList);
     }
@@ -62,7 +56,9 @@ export class RoleController extends HypermediaController {
         queryModel.setPrimaryId(id);
 
         const result = await this.roleManager.find(queryModel);
-        result.data = this.mapper.mapArray(result.data, RoleModel, RoleDto);
+        result.data = result.data.map((roleModel) => {
+            return RoleMapper.toDto(roleModel);
+        });
 
         return result;
     }
@@ -74,7 +70,9 @@ export class RoleController extends HypermediaController {
         );
 
         const result = await this.roleManager.findAll(queryModel);
-        result.data = this.mapper.mapArray(result.data, RoleModel, RoleDto);
+        result.data = result.data.map((roleModel) => {
+            return RoleMapper.toDto(roleModel);
+        });
 
         return result;
     }
@@ -89,11 +87,9 @@ export class RoleController extends HypermediaController {
         @Req() request: GlobalRequest,
         @Body() roleDtoList: RoleDto[],
     ) {
-        const roleModelList = this.mapper.mapArray(
-            roleDtoList,
-            RoleDto,
-            RoleModel,
-        );
+        const roleModelList = roleDtoList.map((roleDto) => {
+            return RoleMapper.dtoToModel(roleDto);
+        });
 
         return await this.roleManager.updateAll(roleModelList);
     }
@@ -104,7 +100,7 @@ export class RoleController extends HypermediaController {
         @Param("id") id: number,
         @Body() roleDto: RoleDto,
     ) {
-        const roleModel = this.mapper.map(roleDto, RoleDto, RoleModel);
+        const roleModel = RoleMapper.dtoToModel(roleDto);
 
         return await this.roleManager.update(+id, roleModel);
     }

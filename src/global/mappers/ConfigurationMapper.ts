@@ -1,23 +1,37 @@
-import { Injectable } from "@nestjs/common";
-import { AutomapperProfile, InjectMapper } from "@automapper/nestjs";
-import { createMap, Mapper } from "@automapper/core";
 import { ConfigurationModel } from "../models/ConfigurationModel";
-import { Configuration } from "../entities/Configuration";
 import { ConfigurationDto } from "../dtos/ConfigurationDto";
+import { Configuration } from "../entities/Configuration";
 
-@Injectable()
-export class ConfigurationMapper extends AutomapperProfile {
-    constructor(@InjectMapper() mapper: Mapper) {
-        super(mapper);
+export class ConfigurationMapper {
+    static toDto(configurationModel: ConfigurationModel): ConfigurationDto {
+        return {
+            key: configurationModel.key,
+            value: configurationModel.value,
+            hashed: configurationModel.hashed,
+        };
     }
 
-    override get profile() {
-        return (mapper: Mapper) => {
-            createMap(mapper, ConfigurationModel, Configuration);
-            createMap(mapper, Configuration, ConfigurationModel);
+    static dtoToModel(configurationDto: ConfigurationDto): ConfigurationModel {
+        return {
+            key: configurationDto.key,
+            value: configurationDto.value,
+            hashed: configurationDto.hashed,
+        };
+    }
 
-            createMap(mapper, ConfigurationModel, ConfigurationDto);
-            createMap(mapper, ConfigurationDto, ConfigurationModel);
+    static toEntity(configurationModel: ConfigurationModel): Configuration {
+        return {
+            key: configurationModel.key ?? "",
+            value: configurationModel.value,
+            hashed: configurationModel.hashed,
+        };
+    }
+
+    static entityToModel(configuration: Configuration): ConfigurationModel {
+        return {
+            key: configuration.key,
+            value: configuration.value,
+            hashed: configuration.hashed,
         };
     }
 }

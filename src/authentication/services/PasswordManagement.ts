@@ -112,10 +112,14 @@ export class PasswordManagement implements IPasswordManagement {
 
         let foundUserPasswordModel = null;
         if (resetPasswordTokenModel.user.email) {
-            foundUserPasswordModel =
-                await this.userPasswordManager.findByUserEmail(
-                    resetPasswordTokenModel.user.email,
-                );
+            try {
+                foundUserPasswordModel =
+                    await this.userPasswordManager.findByUserEmail(
+                        resetPasswordTokenModel.user.email,
+                    );
+            } catch (exception) {
+                // do nothing
+            }
         }
 
         if (foundUserPasswordModel) {
@@ -124,7 +128,11 @@ export class PasswordManagement implements IPasswordManagement {
                 foundUserPasswordModel,
             );
 
-            await this.userPasswordManager.update(userPasswordModel);
+            try {
+                await this.userPasswordManager.update(userPasswordModel);
+            } catch (exception) {
+                console.log(exception);
+            }
             return;
         }
 

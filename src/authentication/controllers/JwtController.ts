@@ -10,19 +10,16 @@ import {
     Post,
     Req,
 } from "@nestjs/common";
-import { InjectMapper } from "@automapper/nestjs";
-import { Mapper } from "@automapper/core";
 import { SIMPLE_USER_LOGIN } from "../services/SimpleUserLogin";
 import { IUserLoginHandler } from "../services/IUserLoginHandler";
 import { JWT_SPECIALIST } from "../helpers/JwtSpecialist";
 import { IJwtSpecialist } from "../helpers/IJwtSpecialist";
 import { SimpleUserLoginDto } from "../dtos/SimpleUserLoginDto";
-import { JwtModel } from "../models/JwtModel";
-import { JwtDto } from "../dtos/JwtDto";
 import { HTTP_HEADER_PARSER } from "../utilities/HttpHeaderParser";
 import { IHttpHeaderParser } from "../utilities/IHttpHeaderParser";
 import { HypermediaController } from "../../hypermedia/controllers/HypermediaController";
 import { GlobalRequest } from "../../global/interfaces/GlobalRequest";
+import { JwtMapper } from "../mappers/JwtMapper";
 
 @Controller("authentication/jwt")
 export class JwtController extends HypermediaController {
@@ -31,8 +28,6 @@ export class JwtController extends HypermediaController {
         private readonly userLogin: IUserLoginHandler,
         @Inject(JWT_SPECIALIST)
         private readonly jwtSpecialist: IJwtSpecialist,
-        @InjectMapper()
-        private readonly mapper: Mapper,
         @Inject(HTTP_HEADER_PARSER)
         private readonly httpHeaderParser: IHttpHeaderParser,
     ) {
@@ -50,7 +45,7 @@ export class JwtController extends HypermediaController {
             simpleUserLoginDto.password ?? "",
         );
 
-        return this.mapper.map(jwtModel, JwtModel, JwtDto);
+        return JwtMapper.toDto(jwtModel);
     }
 
     @Get()

@@ -2,7 +2,6 @@ import { Module } from "@nestjs/common";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { JwtModule } from "@nestjs/jwt";
 import { AwsModule } from "../aws/AwsModule";
-import { AuthenticationMapper } from "./mappers/AuthenticationMapper";
 import {
     HTTP_HEADER_PARSER,
     HttpHeaderParser,
@@ -163,7 +162,6 @@ const simpleUserLogin = {
         apiKeyManager,
         apiKeySpecialist,
         scopeProducer,
-        AuthenticationMapper,
         CreatePassword,
         CreateAdminAccount,
     ],

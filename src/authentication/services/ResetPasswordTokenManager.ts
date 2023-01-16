@@ -1,14 +1,12 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { InjectMapper } from "@automapper/nestjs";
-import { Mapper } from "@automapper/core";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { v4 as uuidv4 } from "uuid";
 import { IResetPasswordTokenManager } from "./IResetPasswordTokenManager";
 import { ResetPasswordTokenModel } from "../models/ResetPasswordTokenModel";
 import { RESET_PASSWORD_TOKEN_REPOSITORY } from "../repositories/ResetPasswordTokenRepository";
 import { IResetPasswordTokenRepository } from "../repositories/IResetPasswordTokenRepository";
-import { ResetPasswordToken } from "../entities/ResetPasswordToken";
 import { BCRYPT_ENCODER } from "../../global/services/BCryptEncoder";
 import { IStringEncoder } from "../../global/services/IStringEncoder";
+import { ResetPasswordTokenMapper } from "../mappers/ResetPasswordTokenMapper";
 
 export const RESET_PASSWORD_TOKEN_MANAGER = "RESET_PASSWORD_TOKEN_MANAGER";
 
@@ -17,8 +15,6 @@ export class ResetPasswordTokenManager implements IResetPasswordTokenManager {
     constructor(
         @Inject(RESET_PASSWORD_TOKEN_REPOSITORY)
         private readonly resetPasswordTokenRepository: IResetPasswordTokenRepository,
-        @InjectMapper()
-        private readonly mapper: Mapper,
         @Inject(BCRYPT_ENCODER)
         private readonly bCryptEncoder: IStringEncoder,
     ) {}
@@ -26,10 +22,8 @@ export class ResetPasswordTokenManager implements IResetPasswordTokenManager {
     async create(
         resetPasswordTokenModel: ResetPasswordTokenModel,
     ): Promise<ResetPasswordTokenModel> {
-        let resetPasswordToken = this.mapper.map(
+        let resetPasswordToken = ResetPasswordTokenMapper.toEntity(
             resetPasswordTokenModel,
-            ResetPasswordTokenModel,
-            ResetPasswordToken,
         );
 
         let token = await this.bCryptEncoder.encode(uuidv4());
@@ -41,11 +35,7 @@ export class ResetPasswordTokenManager implements IResetPasswordTokenManager {
             resetPasswordToken,
         );
 
-        return this.mapper.map(
-            resetPasswordToken,
-            ResetPasswordToken,
-            ResetPasswordTokenModel,
-        );
+        return ResetPasswordTokenMapper.entityToModel(resetPasswordToken);
     }
 
     async delete(token: string): Promise<void> {
@@ -56,21 +46,21 @@ export class ResetPasswordTokenManager implements IResetPasswordTokenManager {
         const resetPasswordToken =
             await this.resetPasswordTokenRepository.findByToken(token);
 
-        return this.mapper.map(
-            resetPasswordToken,
-            ResetPasswordToken,
-            ResetPasswordTokenModel,
-        );
+        if (!resetPasswordToken) {
+            throw new NotFoundException("Reset password wasn't found.");
+        }
+
+        return ResetPasswordTokenMapper.entityToModel(resetPasswordToken);
     }
 
     async findByUserEmail(email: string): Promise<ResetPasswordTokenModel> {
         const resetPasswordToken =
             await this.resetPasswordTokenRepository.findByUserEmail(email);
 
-        return this.mapper.map(
-            resetPasswordToken,
-            ResetPasswordToken,
-            ResetPasswordTokenModel,
-        );
+        if (!resetPasswordToken) {
+            throw new NotFoundException("Reset password wasn't found.");
+        }
+
+        return ResetPasswordTokenMapper.entityToModel(resetPasswordToken);
     }
 }

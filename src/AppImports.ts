@@ -1,6 +1,3 @@
-import { AutomapperModule } from "@automapper/nestjs";
-import { mikro } from "@automapper/mikro";
-import { CamelCaseNamingConvention } from "@automapper/core";
 import { ScheduleModule } from "@nestjs/schedule";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { Configuration as ConfigurationCore } from "@mikro-orm/core";
@@ -33,10 +30,6 @@ export const entities = [
 
 export const globalModules = (databaseOptions: DatabaseOptions) => {
     return [
-        AutomapperModule.forRoot({
-            strategyInitializer: mikro(),
-            namingConventions: new CamelCaseNamingConvention(),
-        }),
         ScheduleModule.forRoot(),
         EventEmitterModule.forRoot(),
         MikroOrmModule.forRoot({

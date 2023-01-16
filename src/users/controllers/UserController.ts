@@ -9,8 +9,6 @@ import {
     Put,
     Req,
 } from "@nestjs/common";
-import { InjectMapper } from "@automapper/nestjs";
-import { Mapper } from "@automapper/core";
 import { HypermediaController } from "../../hypermedia/controllers/HypermediaController";
 import { SIMPLE_USER } from "../services/SimpleUser";
 import { IUserManager } from "../services/IUserManager";
@@ -18,15 +16,13 @@ import { PARAMETER_PROCESSOR } from "../../global/utilities/ParameterProcessor";
 import { IParameterProcessor } from "../../global/utilities/IParameterProcessor";
 import { GlobalRequest } from "../../global/interfaces/GlobalRequest";
 import { UserDto } from "../dtos/UserDto";
-import { UserModel } from "../models/UserModel";
+import { UserMapper } from "../mappers/UserMapper";
 
 @Controller()
 export class UserController extends HypermediaController {
     constructor(
         @Inject(SIMPLE_USER)
         private readonly userManager: IUserManager,
-        @InjectMapper()
-        private readonly mapper: Mapper,
         @Inject(PARAMETER_PROCESSOR)
         private readonly parameterProcessor: IParameterProcessor,
     ) {
@@ -35,7 +31,7 @@ export class UserController extends HypermediaController {
 
     @Post("user")
     async create(@Req() request: GlobalRequest, @Body() userDto: UserDto) {
-        const userModel = this.mapper.map(userDto, UserDto, UserModel);
+        const userModel = UserMapper.dtoToModel(userDto);
 
         return await this.userManager.create(userModel);
     }
@@ -45,10 +41,8 @@ export class UserController extends HypermediaController {
         @Req() request: GlobalRequest,
         @Body() userDtoList: UserDto[],
     ) {
-        const userModelList = this.mapper.mapArray(
-            userDtoList,
-            UserDto,
-            UserModel,
+        const userModelList = userDtoList.map((userDto) =>
+            UserMapper.dtoToModel(userDto),
         );
 
         return await this.userManager.createAll(userModelList);
@@ -62,7 +56,9 @@ export class UserController extends HypermediaController {
         queryModel.setPrimaryId(id);
 
         const result = await this.userManager.find(queryModel);
-        result.data = this.mapper.mapArray(result.data, UserModel, UserDto);
+        result.data = result.data.map((userModel) =>
+            UserMapper.toDto(userModel),
+        );
 
         return result;
     }
@@ -74,7 +70,9 @@ export class UserController extends HypermediaController {
         );
 
         const result = await this.userManager.findAll(queryModel);
-        result.data = this.mapper.mapArray(result.data, UserModel, UserDto);
+        result.data = result.data.map((userModel) =>
+            UserMapper.toDto(userModel),
+        );
 
         return result;
     }
@@ -90,7 +88,7 @@ export class UserController extends HypermediaController {
         @Param("id") id: number,
         @Body() userDto: UserDto,
     ) {
-        const userModel = this.mapper.map(userDto, UserDto, UserModel);
+        const userModel = UserMapper.dtoToModel(userDto);
 
         return await this.userManager.update(+id, userModel);
     }
@@ -100,10 +98,8 @@ export class UserController extends HypermediaController {
         @Req() request: GlobalRequest,
         @Body() userDtoList: UserDto[],
     ) {
-        const userModelList = this.mapper.mapArray(
-            userDtoList,
-            UserDto,
-            UserModel,
+        const userModelList = userDtoList.map((userDto) =>
+            UserMapper.dtoToModel(userDto),
         );
 
         return await this.userManager.updateAll(userModelList);

@@ -5,9 +5,6 @@ import {
     FastifyAdapter,
     NestFastifyApplication,
 } from "@nestjs/platform-fastify";
-import { AutomapperModule } from "@automapper/nestjs";
-import { mikro } from "@automapper/mikro";
-import { CamelCaseNamingConvention } from "@automapper/core";
 import { EventEmitter2, EventEmitterModule } from "@nestjs/event-emitter";
 import { TestDatabase } from "../../enums/TestDatabase";
 import {
@@ -70,10 +67,6 @@ describe("PasswordManagementController (e2e)", () => {
                     user: TestDatabase.USER as string,
                     password: TestDatabase.PASSWORD as string,
                     name: databaseName,
-                }),
-                AutomapperModule.forRoot({
-                    strategyInitializer: mikro(),
-                    namingConventions: new CamelCaseNamingConvention(),
                 }),
                 EventEmitterModule.forRoot(),
                 DatabaseModule,
@@ -287,6 +280,10 @@ describe("PasswordManagementController (e2e)", () => {
                 resetPasswordTokenModel,
             );
 
+            const testing2 = await databaseConnection.query(
+                "SELECT * FROM authentication_reset_password_token;",
+            );
+
             await app.inject({
                 method: "POST",
                 url: "/authentication/password/reset",
@@ -296,6 +293,10 @@ describe("PasswordManagementController (e2e)", () => {
                     passwordConfirmation: "passwords",
                 },
             });
+
+            const testing = await databaseConnection.query(
+                "SELECT * FROM authentication_user_password;",
+            );
 
             const actual = await simpleUserLogin.login(
                 "tester.blue@gmail.com",

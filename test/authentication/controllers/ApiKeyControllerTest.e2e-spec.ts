@@ -1,9 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { Pool, PoolConfig } from "pg";
 import { EventEmitter2, EventEmitterModule } from "@nestjs/event-emitter";
-import { AutomapperModule } from "@automapper/nestjs";
-import { mikro } from "@automapper/mikro";
-import { CamelCaseNamingConvention } from "@automapper/core";
 import {
     FastifyAdapter,
     NestFastifyApplication,
@@ -60,10 +57,6 @@ describe("ApiKeyController (e2e)", () => {
                     user: TestDatabase.USER as string,
                     password: TestDatabase.PASSWORD as string,
                     name: databaseName,
-                }),
-                AutomapperModule.forRoot({
-                    strategyInitializer: mikro(),
-                    namingConventions: new CamelCaseNamingConvention(),
                 }),
                 EventEmitterModule.forRoot(),
                 DatabaseModule,

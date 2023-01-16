@@ -12,9 +12,6 @@ import {
     NestFastifyApplication,
 } from "@nestjs/platform-fastify";
 import { EventEmitter2, EventEmitterModule } from "@nestjs/event-emitter";
-import { AutomapperModule } from "@automapper/nestjs";
-import { mikro } from "@automapper/mikro";
-import { CamelCaseNamingConvention } from "@automapper/core";
 import { DatabaseModule } from "../../../src/database/DatabaseModule";
 import { GlobalModule } from "../../../src/global/GlobalModule";
 import { HypermediaModule } from "../../../src/hypermedia/HypermediaModule";
@@ -59,10 +56,6 @@ describe("RoleController (e2e)", () => {
                     user: TestDatabase.USER as string,
                     password: TestDatabase.PASSWORD as string,
                     name: databaseName,
-                }),
-                AutomapperModule.forRoot({
-                    strategyInitializer: mikro(),
-                    namingConventions: new CamelCaseNamingConvention(),
                 }),
                 EventEmitterModule.forRoot(),
                 DatabaseModule,

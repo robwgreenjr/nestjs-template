@@ -9,24 +9,20 @@ import {
     Put,
     Req,
 } from "@nestjs/common";
-import { InjectMapper } from "@automapper/nestjs";
-import { Mapper } from "@automapper/core";
 import { IPermissionManager } from "../services/IPermissionManager";
-import { PermissionModel } from "../models/PermissionModel";
 import { PermissionDto } from "../dtos/PermissionDto";
 import { PERMISSION_MANAGER } from "../services/PermissionManager";
 import { HypermediaController } from "../../hypermedia/controllers/HypermediaController";
 import { PARAMETER_PROCESSOR } from "../../global/utilities/ParameterProcessor";
 import { IParameterProcessor } from "../../global/utilities/IParameterProcessor";
 import { GlobalRequest } from "../../global/interfaces/GlobalRequest";
+import { PermissionMapper } from "../mappers/PermissionMapper";
 
 @Controller("authorization")
 export class PermissionController extends HypermediaController {
     constructor(
         @Inject(PERMISSION_MANAGER)
         private readonly permissionManager: IPermissionManager,
-        @InjectMapper()
-        private readonly mapper: Mapper,
         @Inject(PARAMETER_PROCESSOR)
         private readonly parameterProcessor: IParameterProcessor,
     ) {
@@ -38,11 +34,7 @@ export class PermissionController extends HypermediaController {
         @Req() request: GlobalRequest,
         @Body() permissionDto: PermissionDto,
     ) {
-        const permissionModel = this.mapper.map(
-            permissionDto,
-            PermissionDto,
-            PermissionModel,
-        );
+        const permissionModel = PermissionMapper.dtoToModel(permissionDto);
 
         return await this.permissionManager.create(permissionModel);
     }
@@ -52,11 +44,9 @@ export class PermissionController extends HypermediaController {
         @Req() request: GlobalRequest,
         @Body() permissionDtoList: PermissionDto[],
     ) {
-        const permissionModelList = this.mapper.mapArray(
-            permissionDtoList,
-            PermissionDto,
-            PermissionModel,
-        );
+        const permissionModelList = permissionDtoList.map((permissionDto) => {
+            return PermissionMapper.dtoToModel(permissionDto);
+        });
 
         return await this.permissionManager.createAll(permissionModelList);
     }
@@ -69,11 +59,9 @@ export class PermissionController extends HypermediaController {
         queryModel.setPrimaryId(id);
 
         const result = await this.permissionManager.find(queryModel);
-        result.data = this.mapper.mapArray(
-            result.data,
-            PermissionModel,
-            PermissionDto,
-        );
+        result.data = result.data.map((permissionModel) => {
+            return PermissionMapper.toDto(permissionModel);
+        });
 
         return result;
     }
@@ -85,11 +73,9 @@ export class PermissionController extends HypermediaController {
         );
 
         const result = await this.permissionManager.findAll(queryModel);
-        result.data = this.mapper.mapArray(
-            result.data,
-            PermissionModel,
-            PermissionDto,
-        );
+        result.data = result.data.map((permissionModel) => {
+            return PermissionMapper.toDto(permissionModel);
+        });
 
         return result;
     }
@@ -104,11 +90,9 @@ export class PermissionController extends HypermediaController {
         @Req() request: GlobalRequest,
         @Body() permissionDtoList: PermissionDto[],
     ) {
-        const permissionModelList = this.mapper.mapArray(
-            permissionDtoList,
-            PermissionDto,
-            PermissionModel,
-        );
+        const permissionModelList = permissionDtoList.map((permissionDto) => {
+            return PermissionMapper.dtoToModel(permissionDto);
+        });
 
         return await this.permissionManager.updateAll(permissionModelList);
     }
@@ -119,11 +103,7 @@ export class PermissionController extends HypermediaController {
         @Param("id") id: number,
         @Body() permissionDto: PermissionDto,
     ) {
-        const permissionModel = this.mapper.map(
-            permissionDto,
-            PermissionDto,
-            PermissionModel,
-        );
+        const permissionModel = PermissionMapper.dtoToModel(permissionDto);
 
         return await this.permissionManager.update(+id, permissionModel);
     }

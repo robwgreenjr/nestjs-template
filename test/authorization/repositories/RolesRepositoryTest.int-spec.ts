@@ -5,9 +5,6 @@ import {
     FastifyAdapter,
     NestFastifyApplication,
 } from "@nestjs/platform-fastify";
-import { AutomapperModule } from "@automapper/nestjs";
-import { mikro } from "@automapper/mikro";
-import { CamelCaseNamingConvention } from "@automapper/core";
 import { EventEmitter2, EventEmitterModule } from "@nestjs/event-emitter";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { TestDatabase } from "../../enums/TestDatabase";
@@ -65,10 +62,6 @@ describe("RolesRepository (int)", () => {
                     user: TestDatabase.USER as string,
                     password: TestDatabase.PASSWORD as string,
                     name: databaseName,
-                }),
-                AutomapperModule.forRoot({
-                    strategyInitializer: mikro(),
-                    namingConventions: new CamelCaseNamingConvention(),
                 }),
                 EventEmitterModule.forRoot(),
                 MikroOrmModule.forFeature([User, Permission, Role]),

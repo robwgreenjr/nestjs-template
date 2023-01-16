@@ -1,13 +1,11 @@
 import { IPermissionManager } from "./IPermissionManager";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { InjectMapper } from "@automapper/nestjs";
-import { Mapper } from "@automapper/core";
 import { PERMISSION_REPOSITORY } from "../repositories/PermissionsRepository";
 import { IPermissionsRepository } from "../repositories/IPermissionsRepository";
 import { PermissionModel } from "../models/PermissionModel";
-import { Permission } from "../entities/Permission";
 import { QueryModel } from "../../global/models/QueryModel";
 import { QueryResponse } from "../../global/models/QueryResponse";
+import { PermissionMapper } from "../mappers/PermissionMapper";
 
 export const PERMISSION_MANAGER = "PERMISSION_MANAGER";
 
@@ -16,40 +14,34 @@ export class PermissionManager implements IPermissionManager {
     constructor(
         @Inject(PERMISSION_REPOSITORY)
         private readonly permissionRepository: IPermissionsRepository,
-        @InjectMapper()
-        private readonly mapper: Mapper,
     ) {}
 
     async create(permissionModel: PermissionModel): Promise<PermissionModel> {
-        let permission: Permission = this.mapper.map(
-            permissionModel,
-            PermissionModel,
-            Permission,
-        );
+        let permission = PermissionMapper.toEntity(permissionModel);
 
         permission = await this.permissionRepository.create(permission);
 
-        return this.mapper.map(permission, Permission, PermissionModel);
+        return PermissionMapper.entityToModel(permission);
     }
 
     async createAll(
         permissionModelList: PermissionModel[],
     ): Promise<PermissionModel[]> {
-        const permissionList = this.mapper.mapArray(
-            permissionModelList,
-            PermissionModel,
-            Permission,
+        let permissionList = permissionModelList.map((permissionModel) => {
+            return PermissionMapper.toEntity(permissionModel);
+        });
+
+        permissionList = await this.permissionRepository.createAll(
+            permissionList,
         );
 
-        const permission: Permission[] =
-            await this.permissionRepository.createAll(permissionList);
-
-        return this.mapper.mapArray(permission, Permission, PermissionModel);
+        return permissionList.map((permission) => {
+            return PermissionMapper.entityToModel(permission);
+        });
     }
 
     async delete(id: number): Promise<void> {
-        const permission: Permission | null =
-            await this.permissionRepository.findById(id);
+        const permission = await this.permissionRepository.findById(id);
 
         if (!permission) {
             throw new NotFoundException(
@@ -61,17 +53,14 @@ export class PermissionManager implements IPermissionManager {
     }
 
     async find(queryModel: QueryModel): Promise<QueryResponse> {
-        const permission: Permission | null =
-            await this.permissionRepository.find(queryModel);
+        const permission = await this.permissionRepository.find(queryModel);
 
         if (!permission) {
             throw new NotFoundException("Permission not found.");
         }
 
         const queryResponse = new QueryResponse();
-        queryResponse.data = [
-            this.mapper.map(permission, Permission, PermissionModel),
-        ];
+        queryResponse.data = [PermissionMapper.entityToModel(permission)];
         queryResponse.setCount(1);
         queryResponse.setPageCount(1);
 
@@ -79,13 +68,15 @@ export class PermissionManager implements IPermissionManager {
     }
 
     async findAll(queryModel: QueryModel): Promise<QueryResponse> {
-        const permission: Permission[] =
-            await this.permissionRepository.findAll(queryModel);
+        const permissionList = await this.permissionRepository.findAll(
+            queryModel,
+        );
 
         const queryResponse = new QueryResponse();
-        queryResponse.data = [
-            ...this.mapper.mapArray(permission, Permission, PermissionModel),
-        ];
+        queryResponse.data = permissionList.map((permission) => {
+            return PermissionMapper.entityToModel(permission);
+        });
+
         queryResponse.setCount(
             await this.permissionRepository.count(queryModel),
         );
@@ -96,8 +87,7 @@ export class PermissionManager implements IPermissionManager {
     }
 
     async findById(id: number): Promise<PermissionModel> {
-        const permission: Permission | null =
-            await this.permissionRepository.findById(id);
+        const permission = await this.permissionRepository.findById(id);
 
         if (!permission) {
             throw new NotFoundException(
@@ -105,37 +95,34 @@ export class PermissionManager implements IPermissionManager {
             );
         }
 
-        return this.mapper.map(permission, Permission, PermissionModel);
+        return PermissionMapper.entityToModel(permission);
     }
 
     async update(
         id: number,
         permissionModel: PermissionModel,
     ): Promise<PermissionModel> {
-        let permission: Permission = this.mapper.map(
-            permissionModel,
-            PermissionModel,
-            Permission,
-        );
+        let permission = PermissionMapper.toEntity(permissionModel);
         permission.id = id;
 
         permission = await this.permissionRepository.update(permission);
 
-        return this.mapper.map(permission, Permission, PermissionModel);
+        return PermissionMapper.entityToModel(permission);
     }
 
     async updateAll(
         permissionModelList: PermissionModel[],
     ): Promise<PermissionModel[]> {
-        const permissionList = this.mapper.mapArray(
-            permissionModelList,
-            PermissionModel,
-            Permission,
+        let permissionList = permissionModelList.map((permissionModel) => {
+            return PermissionMapper.toEntity(permissionModel);
+        });
+
+        permissionList = await this.permissionRepository.updateAll(
+            permissionList,
         );
 
-        const permission: Permission[] =
-            await this.permissionRepository.updateAll(permissionList);
-
-        return this.mapper.mapArray(permission, Permission, PermissionModel);
+        return permissionList.map((permission) => {
+            return PermissionMapper.entityToModel(permission);
+        });
     }
 }

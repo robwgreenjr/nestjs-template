@@ -1,58 +1,41 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { InjectMapper } from "@automapper/nestjs";
-import { Mapper } from "@automapper/core";
 import { IConfigurationManager } from "./IConfigurationManager";
 import { CONFIGURATION_REPOSITORY } from "../repositories/ConfigurationRepository";
 import { IConfigurationRepository } from "../repositories/IConfigurationRepository";
 import { ConfigurationModel } from "../models/ConfigurationModel";
-import { Configuration } from "../entities/Configuration";
+import { ConfigurationMapper } from "../mappers/ConfigurationMapper";
 
 export const CONFIGURATION_MANAGER = "CONFIGURATION_MANAGER";
 
 @Injectable()
 export class ConfigurationManager implements IConfigurationManager {
     constructor(
-        @InjectMapper()
-        private readonly mapper: Mapper,
         @Inject(CONFIGURATION_REPOSITORY)
         private readonly configurationRepository: IConfigurationRepository,
     ) {}
 
     async findByKey(key: string): Promise<ConfigurationModel | null> {
-        const configuration: Configuration | null =
-            await this.configurationRepository.findByKey(key);
+        const configuration = await this.configurationRepository.findByKey(key);
 
         if (!configuration) {
             throw new NotFoundException(
-                `Authentication configuration with key (${key}) wasn't found.`,
+                `Configuration with key (${key}) wasn't found.`,
             );
         }
 
-        return this.mapper.map(
-            configuration,
-            Configuration,
-            ConfigurationModel,
-        );
+        return ConfigurationMapper.entityToModel(configuration);
     }
 
     async update(
         configurationModel: ConfigurationModel,
     ): Promise<ConfigurationModel> {
-        let configuration: Configuration = this.mapper.map(
-            configurationModel,
-            ConfigurationModel,
-            Configuration,
-        );
+        let configuration = ConfigurationMapper.toEntity(configurationModel);
 
         configuration = await this.configurationRepository.update(
             configuration,
         );
 
-        configurationModel = this.mapper.map(
-            configuration,
-            Configuration,
-            ConfigurationModel,
-        );
+        configurationModel = ConfigurationMapper.entityToModel(configuration);
 
         return configurationModel;
     }

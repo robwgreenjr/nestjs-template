@@ -88,8 +88,9 @@ export class UserPasswordRepository implements IUserPasswordRepository {
             }
 
             wrap(entity).assign(userPassword);
+            await this.userPasswordRepository.upsert(entity);
 
-            await this.userPasswordRepository.persistAndFlush(entity);
+            await this.userPasswordRepository.flush();
         } catch (exception) {
             this.exceptionHandler.exceptionHandler(exception);
         }

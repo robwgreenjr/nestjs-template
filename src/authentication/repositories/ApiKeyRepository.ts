@@ -87,6 +87,7 @@ export class ApiKeyRepository implements IApiKeyRepository {
             entity = await this.queryBuilder.find<ApiKey>({
                 queryModel,
                 entityRepository: this.apiKeyRepository,
+                populate: ["role"],
             });
         } catch (exception: any) {
             this.exceptionHandler.exceptionHandler(exception);
@@ -102,6 +103,7 @@ export class ApiKeyRepository implements IApiKeyRepository {
             entityList = await this.queryBuilder.findAll<ApiKey>({
                 queryModel,
                 entityRepository: this.apiKeyRepository,
+                populate: ["role"],
             });
         } catch (exception: any) {
             this.exceptionHandler.exceptionHandler(exception);
@@ -114,7 +116,9 @@ export class ApiKeyRepository implements IApiKeyRepository {
         let entity: ApiKey | null = null;
 
         try {
-            entity = await this.apiKeyRepository.findOne(id);
+            entity = await this.apiKeyRepository.findOne(id, {
+                populate: ["role"],
+            });
         } catch (exception: any) {
             this.exceptionHandler.exceptionHandler(exception);
         }

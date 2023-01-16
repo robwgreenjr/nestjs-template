@@ -7,7 +7,6 @@ import {
 } from "./repositories/UsersRepository";
 import { User } from "./entities/User";
 import { UserController } from "./controllers/UserController";
-import { UserMapper } from "./mappers/UsersMapper";
 
 const userManager = {
     provide: SIMPLE_USER,
@@ -22,7 +21,7 @@ const userRepository = {
 @Module({
     imports: [MikroOrmModule.forFeature([User])],
     controllers: [UserController],
-    providers: [userManager, userRepository, UserMapper],
-    exports: [userManager, userRepository, UserMapper],
+    providers: [userManager, userRepository],
+    exports: [userManager, userRepository],
 })
 export class UsersModule {}

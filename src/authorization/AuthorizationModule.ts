@@ -19,7 +19,6 @@ import { Role } from "./entities/Role";
 import { UsersModule } from "../users/UsersModule";
 import { PermissionController } from "./controllers/PermissionController";
 import { RoleController } from "./controllers/RoleController";
-import { AuthorizationMapper } from "./mappers/AuthorizationMapper";
 
 const roleRepository = {
     provide: ROLE_REPOSITORY,
@@ -49,14 +48,12 @@ const permissionManager = {
         permissionManager,
         roleRepository,
         roleManager,
-        AuthorizationMapper,
     ],
     exports: [
         permissionRepository,
         permissionManager,
         roleRepository,
         roleManager,
-        AuthorizationMapper,
     ],
 })
 export class AuthorizationModule {}
