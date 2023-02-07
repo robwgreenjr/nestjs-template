@@ -1,4 +1,4 @@
-import { FindOptions, QBFilterQuery, QBQueryOrderMap } from "@mikro-orm/core";
+import { FilterQuery, FindOptions, QBQueryOrderMap } from "@mikro-orm/core";
 import { IQueryBuilder } from "./IQueryBuilder";
 import { InternalServerErrorException } from "@nestjs/common";
 import { QueryModel } from "../../global/models/QueryModel";
@@ -43,7 +43,7 @@ export class QueryBuilder implements IQueryBuilder {
         }, {});
     }
 
-    public conditionBuilder(queryModel: QueryModel): QBFilterQuery {
+    public conditionBuilder(queryModel: QueryModel): FilterQuery<any> {
         if (
             typeof queryModel.filterList === "undefined" ||
             !queryModel.filterList

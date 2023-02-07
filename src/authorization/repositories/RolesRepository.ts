@@ -37,48 +37,11 @@ export class RolesRepository implements IRolesRepository {
 
     async create(role: Role): Promise<Role> {
         try {
-            role = this.roleRepository.create(role);
+            role = this.roleRepository.create(role, {
+                managed: true,
+            });
 
-            // Temporary hack to prevent duplicate inserts into relationships
-            // Remove collections and then update after initial creation
-            const userList = [];
-            if (typeof role.users !== "undefined") {
-                for (const user of role.users) {
-                    const entity = await this.userRepository.findOne({
-                        id: user.id,
-                    });
-
-                    if (!entity) {
-                        throw new NotFoundException("User not found.");
-                    }
-
-                    userList.push(entity);
-                }
-            }
-            // @ts-ignore
-            role.users = [];
-
-            const permissionList = [];
-            if (typeof role.permissions !== "undefined") {
-                for (const permission of role.permissions) {
-                    const entity = await this.permissionRepository.findOne({
-                        id: permission.id,
-                    });
-
-                    if (!entity) {
-                        throw new NotFoundException("Permission not found.");
-                    }
-
-                    permissionList.push(entity);
-                }
-            }
-            // @ts-ignore
-            role.permissions = [];
-
-            await this.roleRepository.persistAndFlush(role);
-
-            role.permissions.set(permissionList);
-            role.users.set(userList);
+            role = await this.collectionAssignment(role);
 
             await this.roleRepository.persistAndFlush(role);
         } catch (exception: any) {
@@ -90,49 +53,8 @@ export class RolesRepository implements IRolesRepository {
 
     async createAll(roleList: Role[]): Promise<Role[]> {
         try {
-            for (const role of roleList) {
-                // Temporary hack to prevent duplicate inserts into relationships
-                // Remove collections and then update after initial creation
-                const userList = [];
-                if (typeof role.users !== "undefined") {
-                    for (const user of role.users) {
-                        const entity = await this.userRepository.findOne({
-                            id: user.id,
-                        });
-
-                        if (!entity) {
-                            throw new NotFoundException("User not found.");
-                        }
-
-                        userList.push(entity);
-                    }
-                }
-                // @ts-ignore
-                role.users = [];
-
-                const permissionList = [];
-                if (typeof role.permissions !== "undefined") {
-                    for (const permission of role.permissions) {
-                        const entity = await this.permissionRepository.findOne({
-                            id: permission.id,
-                        });
-
-                        if (!entity) {
-                            throw new NotFoundException(
-                                "Permission not found.",
-                            );
-                        }
-
-                        permissionList.push(entity);
-                    }
-                }
-                // @ts-ignore
-                role.permissions = [];
-
-                await this.roleRepository.persistAndFlush(role);
-
-                role.permissions.set(permissionList);
-                role.users.set(userList);
+            for (let role of roleList) {
+                role = await this.collectionAssignment(role);
 
                 await this.roleRepository.persistAndFlush(role);
             }
@@ -255,53 +177,24 @@ export class RolesRepository implements IRolesRepository {
     }
 
     async update(role: Role): Promise<Role> {
-        const entity = await this.roleRepository.findOne({ id: role.id });
+        let entity: Role | null = await this.roleRepository.findOne(
+            { id: role.id },
+            {
+                populate: ["users", "permissions"],
+            },
+        );
 
         if (!entity) {
             throw new NotFoundException("Role wasn't found.");
         }
 
         try {
-            const userList = [];
-            if (typeof role.users !== "undefined") {
-                for (const user of role.users) {
-                    const entity = await this.userRepository.findOne({
-                        id: user.id,
-                    });
-
-                    if (!entity) {
-                        throw new NotFoundException("User not found.");
-                    }
-
-                    userList.push(entity);
-                }
-            }
-            // @ts-ignore
-            role.users = [];
-
-            const permissionList = [];
-            if (typeof role.permissions !== "undefined") {
-                for (const permission of role.permissions) {
-                    const entity = await this.permissionRepository.findOne({
-                        id: permission.id,
-                    });
-
-                    if (!entity) {
-                        throw new NotFoundException("Permission not found.");
-                    }
-
-                    permissionList.push(entity);
-                }
-            }
-            // @ts-ignore
-            role.permissions = [];
+            entity.permissions.removeAll();
+            entity.users.removeAll();
 
             wrap(entity).assign(role);
 
-            await this.roleRepository.persistAndFlush(entity);
-
-            entity.permissions.set(permissionList);
-            entity.users.set(userList);
+            entity = await this.collectionAssignment(entity, true);
 
             await this.roleRepository.persistAndFlush(entity);
         } catch (exception: any) {
@@ -312,65 +205,67 @@ export class RolesRepository implements IRolesRepository {
     }
 
     async updateAll(roleList: Role[]): Promise<Role[]> {
-        try {
-            for (const role of roleList) {
-                const entity = await this.roleRepository.findOne({
+        for (const role of roleList) {
+            let entity: Role | null = await this.roleRepository.findOne(
+                {
                     id: role.id,
-                });
+                },
+                {
+                    populate: ["users", "permissions"],
+                },
+            );
 
-                if (!entity) {
-                    throw new NotFoundException("Role wasn't found.");
-                }
-
-                const userList = [];
-                if (typeof role.users !== "undefined") {
-                    for (const user of role.users) {
-                        const entity = await this.userRepository.findOne({
-                            id: user.id,
-                        });
-
-                        if (!entity) {
-                            throw new NotFoundException("User not found.");
-                        }
-
-                        userList.push(entity);
-                    }
-                }
-                // @ts-ignore
-                role.users = [];
-
-                const permissionList = [];
-                if (typeof role.permissions !== "undefined") {
-                    for (const permission of role.permissions) {
-                        const entity = await this.permissionRepository.findOne({
-                            id: permission.id,
-                        });
-
-                        if (!entity) {
-                            throw new NotFoundException(
-                                "Permission not found.",
-                            );
-                        }
-
-                        permissionList.push(entity);
-                    }
-                }
-                // @ts-ignore
-                role.permissions = [];
-
-                wrap(entity).assign(role);
-
-                await this.roleRepository.persistAndFlush(entity);
-
-                entity.permissions.set(permissionList);
-                entity.users.set(userList);
-
-                await this.roleRepository.persistAndFlush(entity);
+            if (!entity) {
+                throw new NotFoundException("Role wasn't found.");
             }
-        } catch (exception: any) {
-            this.exceptionHandler.exceptionHandler(exception);
+
+            entity.permissions.removeAll();
+            entity.users.removeAll();
+
+            wrap(entity).assign(role);
+
+            entity = await this.collectionAssignment(entity, true);
+
+            try {
+                await this.roleRepository.persistAndFlush(entity);
+            } catch (exception: any) {
+                this.exceptionHandler.exceptionHandler(exception);
+            }
         }
 
         return roleList;
+    }
+
+    private async collectionAssignment(
+        role: Role,
+        isUpdate?: boolean,
+    ): Promise<Role> {
+        if (typeof role.users !== "undefined") {
+            const assignUsers = await this.userRepository.find({
+                id: role.users.toArray().map((user) => user.id ?? -1),
+            });
+
+            if (isUpdate) {
+                role.users.removeAll();
+            }
+
+            role.users.set(assignUsers);
+        }
+
+        if (typeof role.permissions !== "undefined") {
+            const assignPermissions = await this.permissionRepository.find({
+                id: role.permissions
+                    .toArray()
+                    .map((permission) => permission.id ?? -1),
+            });
+
+            if (isUpdate) {
+                role.permissions.removeAll();
+            }
+
+            role.permissions.set(assignPermissions);
+        }
+
+        return role;
     }
 }
